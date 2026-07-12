@@ -1,0 +1,11 @@
+YOUR_DOMAIN {
+    handle_path /api/* {
+        reverse_proxy backend:8000
+    }
+    handle {
+        root * /srv/dobox
+        try_files {path} /index.html
+        file_server
+        encode gzip zstd
+    }
+}
