@@ -9,12 +9,23 @@ services:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
+  migrate:
+    build: .
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dobox:${POSTGRES_PASSWORD}@db:5432/dobox
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   backend:
     build: .
     environment:
       DATABASE_URL: postgresql+asyncpg://dobox:${POSTGRES_PASSWORD}@db:5432/dobox
     depends_on:
-      - db
+      migrate:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   caddy:
