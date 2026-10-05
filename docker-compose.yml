@@ -5,6 +5,11 @@ services:
       POSTGRES_USER: dobox
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: dobox
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U dobox -d dobox" ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
