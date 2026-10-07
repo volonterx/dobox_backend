@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -15,7 +16,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from httpx_oauth.clients.google import GoogleOAuth2
 from app.auth import auth_backend, fastapi_users, oauth_backend
 from app.schemas.user import UserRead, UserCreate, UserUpdate
-from app.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SECRET, COOKIE_SECURE, FRONTEND_URL
+from app.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SECRET, COOKIE_SECURE, FRONTEND_URL, DEBUG
+
 
 app = FastAPI()
 app.include_router(items.router)
@@ -27,6 +29,17 @@ app.add_middleware(
   allow_headers=["*"],
   allow_credentials=True
 )
+
+if DEBUG:
+  logger = logging.getLogger(__name__)
+
+  @app.middleware("http")
+  async def log_request(request: Request, call_next):
+      body = await request.body()
+      logger.warning("=========== REQUEST DATA ===========")
+      logger.warning("%s %s body=%s", request.method, request.url.path, body.decode())
+      logger.warning("====================================")
+      return await call_next(request)
 
 @app.exception_handler(HTTPException)
 async def oauth_error_handler(request: Request, exc: HTTPException):

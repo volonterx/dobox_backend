@@ -7,6 +7,9 @@ from app.models.user import User
 from app.models.item import Item
 from app.schemas.item import ItemRead, ItemCreate, ItemUpdate
 
+from app.utils import utcnow
+
+
 router = APIRouter(prefix="/items", tags=["items"])
 
 async def get_owned_item(
@@ -26,7 +29,12 @@ async def get_items(
   current_user: User = Depends(current_active_user),
   db: AsyncSession = Depends(get_db),
 ):
-  result = await db.execute(current_user.items.select())
+  result = await db.execute(
+    current_user.items.select().order_by(
+      Item.completed_at.is_(None).desc(),
+      Item.updated_at.desc(),
+    )
+  )
   return result.scalars().all()
 
 
@@ -56,6 +64,10 @@ async def update_item(
 ):
   for field, value in data.model_dump(exclude_unset=True).items():
       setattr(item, field, value)
+  if data.completed:
+      item.completed_at = utcnow()
+  if data.started:
+      item.started_at = utcnow()
   await db.commit()
   await db.refresh(item)
   return item
