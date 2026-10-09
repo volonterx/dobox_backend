@@ -21,7 +21,7 @@ Python 3.12+ and FastAPI. This is the API for my to-do PWA; the React frontend i
 - If I ask a question or ask you to explain how something works, you need to use "Explanation protocol" section 
 - If I ask you to plan a feature you need to use "Plan protocol" section rules
 - Use "Review protocol" section rules if I want you to make a review of what is done or current stage of application.
-- You may not use protocol for you're not sure what to use or I specifically ask you about specific structure or actual response is shorter that what's in the protocol. But keep in mind protocol's spirit. The general idea is - easy consumable short explanation first, all the details and specifics laster. Unless it's a list response must not be too big - I'll ask for specifics later if I need to. 
+- You may not use protocol for you're not sure what to use or I specifically ask you about specific structure or actual response is shorter that what's in the protocol. Also you don't need to follow exact structure, in a case when answer is short, like yes or no with explanation. Anyway you must keep in mind protocol's spirit. The general idea is - easy consumable short explanation first, all the details and specifics laster. Unless it's a list response must not be too big - I'll ask for specifics later if I need to. 
 
 ## Plan protocol
 1. Give short explaintion of plan. What is a purpose and objective in a couple of sentencies.
@@ -32,7 +32,7 @@ Python 3.12+ and FastAPI. This is the API for my to-do PWA; the React frontend i
 - Give me a numbered continious list of all problems/suggestions etc that are appicable to the type of rewivew I requested. If something need to be fixed exaplain it in 1-2 sentencies.
 
 ## Explanation protocol
-- 1. Small block (2-3 sentences) that exaplains the essence of response in non-technical, general, philosophical way.
+- 1. Small block (2-3 sentences) that exaplains the essence of response in non-technical, general, philosophical way. 
 - 2. Small block (4-7 sentences) with focused question-oriented straight technical answer.
 - 3. Free section with reasoning, explanations, comparsion tables and short code examples.
 - 4. Follow-up themes. Couple of topics that I might be interested in. You need to put all info that do not answer to my question but more like giving a big picture of context here.

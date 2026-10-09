@@ -1,6 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
+from debug_toolbar.middleware import DebugToolbarMiddleware
 from fastapi import FastAPI
 
 from app.database import engine, Base
@@ -19,7 +20,7 @@ from app.schemas.user import UserRead, UserCreate, UserUpdate
 from app.config import GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SECRET, COOKIE_SECURE, FRONTEND_URL, DEBUG
 
 
-app = FastAPI()
+app = FastAPI(debug=DEBUG)
 app.include_router(items.router)
 
 app.add_middleware(
@@ -32,6 +33,11 @@ app.add_middleware(
 
 if DEBUG:
   logger = logging.getLogger(__name__)
+
+  app.add_middleware(
+      DebugToolbarMiddleware,
+      panels=["debug_toolbar.panels.sqlalchemy.SQLAlchemyPanel"],
+  )
 
   @app.middleware("http")
   async def log_request(request: Request, call_next):
