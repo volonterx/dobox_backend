@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from  sqlalchemy.sql.expression import func, select
 
 from app.database import get_db
 from app.auth import current_active_user
 from app.models.user import User
 from app.models.item import Item
-from app.schemas.item import ItemRead, ItemCreate, ItemUpdate
+from app.schemas.item import ItemRead, ItemCreate, ItemUpdate, ItemId
 
 from app.utils import utcnow
 
@@ -36,6 +37,23 @@ async def get_items(
     )
   )
   return result.scalars().all()
+
+@router.get("/random", response_model=ItemId)
+async def get_random_item(
+  current_user: User = Depends(current_active_user),
+  db: AsyncSession = Depends(get_db),
+):
+  result = await db.execute(
+    current_user.items.select()
+    .with_only_columns(Item.id)
+    .where(Item.completed_at.is_(None))
+    .order_by(func.random())
+    .limit(1)
+  )
+  item_id = result.scalar_one_or_none()
+  if item_id is None:
+      raise HTTPException(status_code=404, detail="No unfinished items")
+  return {"id": item_id}
 
 
 @router.post("/", response_model=ItemRead)

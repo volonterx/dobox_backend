@@ -8,6 +8,9 @@ Title = Annotated[str,
   AfterValidator(lambda v: v.strip())
 ]
 
+class ItemId(BaseModel):
+  id: int
+
 class ParentItemRead(BaseModel):
   id: int
   title: Title
