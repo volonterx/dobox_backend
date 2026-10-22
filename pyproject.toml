@@ -1,0 +1,22 @@
+[project]
+name = "dobox-backend"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.20.1",
+    "asyncpg>=0.32.0",
+    "fastapi>=0.161.0",
+    "fastapi-debug-toolbar>=0.6.3",
+    "fastapi-users[oauth,sqlalchemy]>=15.0.5",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.2.4",
+    "sqlalchemy[asyncio]>=2.0.55",
+    "uvicorn>=0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.17.2",
+]
