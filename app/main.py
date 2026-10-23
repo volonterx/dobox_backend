@@ -1,10 +1,8 @@
 import logging
-from contextlib import asynccontextmanager
 
 from debug_toolbar.middleware import DebugToolbarMiddleware
 from fastapi import FastAPI
 
-from app.database import engine, Base
 from app.routers import items
 from urllib.parse import urlencode
 
@@ -13,6 +11,10 @@ from fastapi.exceptions import HTTPException
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
+from app.exceptions import DomainError, translate
 
 from httpx_oauth.clients.google import GoogleOAuth2
 from app.auth import auth_backend, fastapi_users, oauth_backend
@@ -53,6 +55,20 @@ async def oauth_error_handler(request: Request, exc: HTTPException):
     query = urlencode({"error": str(exc.detail)})
     return RedirectResponse(f"{FRONTEND_URL}/login?{query}", status_code=302)
   return await http_exception_handler(request, exc)
+
+error_logger = logging.getLogger("app.errors")
+
+@app.exception_handler(DomainError)
+async def domain_error_handler(request: Request, exc: DomainError):
+  return JSONResponse(status_code=409, content={"detail": exc.to_detail()})
+
+@app.exception_handler(IntegrityError)
+async def integrity_error_handler(request: Request, exc: IntegrityError):
+  err = translate(exc)
+  if err is None:
+    error_logger.exception("Unmapped integrity error")
+    return JSONResponse(status_code=500, content={"detail": "Something went wrong, try again later"})
+  return JSONResponse(status_code=409, content={"detail": err.to_detail()})
 
 app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="/auth", tags=["auth"])
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate), prefix="/auth", tags=["auth"])

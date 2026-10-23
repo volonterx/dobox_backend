@@ -3,20 +3,25 @@ from sqlalchemy.orm import DeclarativeBase
 import os
 from collections.abc import AsyncGenerator
 
+from app.config import DEBUG
+
 DATABASE_URL = os.environ.get(
   "DATABASE_URL",
   "postgresql+asyncpg://andrey@localhost/dobox",
 )
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(
+    DATABASE_URL,
+    echo=DEBUG,
+    pool_size=5,
+    max_overflow=10,
+    pool_pre_ping=True,
+)
 async_session = async_sessionmaker(engine, expire_on_commit=False)
 
 
 class Base(DeclarativeBase):
   pass
-
-
-from collections.abc import AsyncGenerator
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
   async with async_session() as session:

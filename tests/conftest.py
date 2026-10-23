@@ -1,3 +1,6 @@
+from unittest.mock import MagicMock
+
+import pytest
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
@@ -58,3 +61,11 @@ async def user():
 @pytest_asyncio.fixture
 async def auth_client(client, user):
   return await login(client, user)
+
+
+@pytest.fixture(autouse=True)
+def celery_delay(monkeypatch):
+  """Keep tests off Redis; routes call .delay, tests inspect this mock."""
+  mock = MagicMock()
+  monkeypatch.setattr("app.routers.items.check_achievements.delay", mock)
+  return mock

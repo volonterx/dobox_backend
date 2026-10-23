@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")/.."
+docker compose up -d redis   # no-op if it's already running
+exec uv run honcho start

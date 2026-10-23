@@ -2,13 +2,21 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, DateTime
+from sqlalchemy import ForeignKey, DateTime, Index
 
 from app.database import Base
 from app.utils import utcnow
 
 class Item(Base):
   __tablename__ = "items"
+  __table_args__ = (
+    Index(
+      "uq_items_active_title", "user_id", "title",
+      unique=True,
+      postgresql_where="completed_at IS NULL",
+      info={"field": "title", "msg": "You already have a task with the same name"},
+    ),
+  )
 
   id: Mapped[int] = mapped_column(primary_key=True)
   title: Mapped[str] = mapped_column()

@@ -24,10 +24,27 @@ services:
         condition: service_healthy
     restart: "no"
 
+  redis:
+    image: redis:7
+    ports: [ "127.0.0.1:6380:6379" ]
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: celery -A app.worker worker -l info
+    environment:
+      DATABASE_URL: postgresql+asyncpg://dobox:${POSTGRES_PASSWORD}@db:5432/dobox
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_started }
+    restart: unless-stopped
+
   backend:
     build: .
     environment:
       DATABASE_URL: postgresql+asyncpg://dobox:${POSTGRES_PASSWORD}@db:5432/dobox
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       migrate:
         condition: service_completed_successfully

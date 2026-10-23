@@ -5,17 +5,20 @@ requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.20.1",
     "asyncpg>=0.32.0",
+    "celery>=5.6.3",
     "fastapi>=0.161.0",
     "fastapi-debug-toolbar>=0.6.3",
     "fastapi-users[oauth,sqlalchemy]>=15.0.5",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.4",
+    "redis>=8.1.0",
     "sqlalchemy[asyncio]>=2.0.55",
     "uvicorn>=0.54.0",
 ]
 
 [dependency-groups]
 dev = [
+    "honcho>=2.0.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "ruff>=0.17.2",

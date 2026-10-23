@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from  sqlalchemy.sql.expression import func, select
+from  sqlalchemy.sql.expression import func
 
 from app.database import get_db
 from app.auth import current_active_user
@@ -8,6 +8,7 @@ from app.models.user import User
 from app.models.item import Item
 from app.schemas.item import ItemRead, ItemCreate, ItemUpdate, ItemId
 
+from app.tasks.achievements import check_achievements
 from app.utils import utcnow
 
 
@@ -65,6 +66,7 @@ async def create_item(
   item = Item(**data.model_dump())
   current_user.items.add(item)
   await db.commit()
+  check_achievements.delay(str(current_user.id))
   await db.refresh(item)
   return item
 
@@ -87,6 +89,7 @@ async def update_item(
   if data.started:
       item.started_at = utcnow()
   await db.commit()
+  check_achievements.delay(str(item.user_id))
   await db.refresh(item)
   return item
 
