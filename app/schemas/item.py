@@ -39,6 +39,7 @@ class ItemCreate(BaseModel):
 class ItemUpdate(BaseModel):
   title: Title | None = None
   started_at: datetime | None = None
+  completed_at: datetime | None = None
   completed: bool | None = None
   started: bool | None = None
   parent_id: int | None = None

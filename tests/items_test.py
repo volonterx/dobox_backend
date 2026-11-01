@@ -114,6 +114,20 @@ async def test_start_item_sets_started_at(auth_client):
 
 
 @pytest.mark.asyncio
+async def test_reset_item_clears_started_and_completed(auth_client):
+  created = await auth_client.post("/items/", json={"title": "Reset me"})
+  item_id = created.json()["id"]
+  await auth_client.put(f"/items/{item_id}", json={"started": True})
+  await auth_client.put(f"/items/{item_id}", json={"completed": True})
+
+  response = await auth_client.put(f"/items/{item_id}", json={"started_at": None, "completed_at": None})
+
+  assert response.status_code == 200
+  assert response.json()["started_at"] is None
+  assert response.json()["completed_at"] is None
+
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("body", [{}, {"title": ""}, {"title": "   "}, {"title": 123}])
 async def test_create_item_invalid_body(auth_client, body):
   response = await auth_client.post("/items/", json=body)
